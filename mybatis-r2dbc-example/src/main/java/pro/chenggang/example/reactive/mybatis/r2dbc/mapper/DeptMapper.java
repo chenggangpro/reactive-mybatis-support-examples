@@ -26,6 +26,8 @@ public interface DeptMapper extends DeptDynamicMapper {
 
     Mono<Integer> insertOne(Dept dept);
 
+    Mono<Integer> insertUseSelectKey(Dept dept);
+
     Mono<Integer> deleteByDeptNo(Long deptNo);
 
     Mono<Integer> updateByDeptNo(Dept dept);

@@ -1,16 +1,27 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper;
 
+import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.SelectKey;
+import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
+import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.extend.DeptWithEmp;
 import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model.Dept;
 import pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicMapper;
 import pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport;
+import pro.chenggang.project.reactive.mybatis.support.r2dbc.dynamic.ReactiveMyBatis3Utils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
 import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.createTime;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.dept;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.deptName;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.deptNo;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.location;
 
 /**
  * auto generated
@@ -50,4 +61,18 @@ public interface DeptMapper extends DeptDynamicMapper {
     }
 
     Flux<DeptWithEmp> selectDeptWithEmpList();
+
+    @InsertProvider(type= SqlProviderAdapter.class, method="insert")
+    @SelectKey(statement = "SELECT LAST_INSERT_ID()",keyProperty = "record.deptNo",before = false,resultType = Long.class)
+    Mono<Integer> insertWithSelectKey(InsertStatementProvider<Dept> insertStatement);
+
+    default Mono<Integer> insertWithSelectKey(Dept record) {
+        return ReactiveMyBatis3Utils.insert(this::insertWithSelectKey, record, dept, c ->
+                c.map(deptNo).toProperty("deptNo")
+                        .map(deptName).toProperty("deptName")
+                        .map(location).toProperty("location")
+                        .map(createTime).toProperty("createTime")
+        );
+    }
+
 }

@@ -15,6 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <reactive-mybatis-support.version>1.0.2.RELEASE</reactive-mybatis-support.version>
     </properties>
 
     <dependencies>
@@ -33,7 +34,7 @@
         <dependency>
             <groupId>pro.chenggang</groupId>
             <artifactId>mybatis-r2dbc-spring</artifactId>
-            <version>1.0.1.RELEASE</version>
+            <version>${reactive-mybatis-support.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis.dynamic-sql</groupId>
@@ -63,7 +64,7 @@
         <dependency>
             <groupId>pro.chenggang</groupId>
             <artifactId>mybatis-r2dbc-generator</artifactId>
-            <version>1.0.1.RELEASE</version>
+            <version>${reactive-mybatis-support.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
