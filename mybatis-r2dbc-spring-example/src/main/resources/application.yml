@@ -5,16 +5,17 @@ server:
 r2dbc:
   mybatis:
     mapper-locations: classpath:mapper/*.xml
-    map-underscore-to-camel-case: true
+    configuration-properties:
+      map-underscore-to-camel-case: true
 spring:
   r2dbc:
     mybatis:
-      r2dbc-url: r2dbc:mysql://127.0.0.1:3306/r2dbc?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
-      username: root
-      password: 123456
+      r2dbc-url: r2dbc:mssql://127.0.0.1:1433/r2dbc
+      username: SA
+      password: Abcd@1234
       pool:
         max-idle-time: PT3M
-        validation-query: SELECT 1 FROM DUAL
+        validation-query: SELECT 1
         initial-size: 1
         max-size: 3
         acquire-retry: 3
@@ -24,5 +25,6 @@ logging:
   level:
     pro.chenggang: DEBUG
     org.springframework.r2dbc: DEBUG
+    io.r2dbc: INFO
   file:
     path: ./logs

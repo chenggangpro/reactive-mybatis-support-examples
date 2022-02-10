@@ -27,13 +27,6 @@
     INSERT INTO dept (dept_name, location, create_time) VALUES (#{deptName},#{location},#{createTime})
   </insert>
 
-  <insert id="insertUseSelectKey" parameterType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
-    <selectKey resultType="long" order="AFTER" keyProperty="deptNo">
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    INSERT INTO dept (dept_name, location, create_time) VALUES (#{deptName},#{location},#{createTime})
-  </insert>
-
   <update id="updateByDeptNo" parameterType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
     UPDATE dept
     SET dept_name = #{deptName}
@@ -49,7 +42,7 @@
     SELECT * FROM dept where dept_no = #{deptNo}
   </select>
   <select id="selectListByTime" resultType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
-    SELECT * FROM dept where DATE(create_time) = DATE(#{createTime})
+    SELECT * FROM dept where CONVERT(DATE,create_time) =CONVERT(DATE,#{createTime})
   </select>
 
   <resultMap id="DeptWithEmp" type="pro.chenggang.example.reactive.mybatis.r2dbc.entity.extend.DeptWithEmp">

@@ -78,20 +78,6 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
     }
 
     @Test
-    public void testInsertBySelectKeyAndReturnGenerateKey() throws Exception{
-        Dept dept = new Dept();
-        dept.setDeptName("Test_dept_name");
-        dept.setCreateTime(LocalDateTime.now());
-        dept.setLocation("Test_location");
-        this.deptMapper.insertSelectiveWithSelectKey(dept)
-                .as(this::withRollback)
-                .as(StepVerifier::create)
-                .expectNextMatches(effectRowCount -> effectRowCount == 1)
-                .verifyComplete();
-        assertThat(dept.getDeptNo()).isNotNull();
-    }
-
-    @Test
     public void testDeleteByDeptNo() throws Exception {
         Dept dept = new Dept();
         dept.setDeptName("Test_dept_name");

@@ -61,17 +61,4 @@ public interface DeptMapper extends DeptDynamicMapper {
 
     Flux<DeptWithEmp> selectDeptWithEmpList();
 
-    @InsertProvider(type= SqlProviderAdapter.class, method="insert")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()",keyProperty = "record.deptNo",before = false,resultType = Long.class)
-    Mono<Integer> insertSelectiveWithSelectKey(InsertStatementProvider<Dept> insertStatement);
-
-    default Mono<Integer> insertSelectiveWithSelectKey(Dept record) {
-        return ReactiveMyBatis3Utils.insert(this::insertSelectiveWithSelectKey, record, dept, c ->
-                c.map(deptNo).toPropertyWhenPresent("deptNo", record::getDeptNo)
-                        .map(deptName).toPropertyWhenPresent("deptName", record::getDeptName)
-                        .map(location).toPropertyWhenPresent("location", record::getLocation)
-                        .map(createTime).toPropertyWhenPresent("createTime", record::getCreateTime)
-        );
-    }
-
 }
