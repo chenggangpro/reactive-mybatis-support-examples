@@ -2,7 +2,6 @@ package pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper;
 
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.SelectKey;
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
@@ -64,14 +63,14 @@ public interface DeptMapper extends DeptDynamicMapper {
 
     @InsertProvider(type= SqlProviderAdapter.class, method="insert")
     @SelectKey(statement = "SELECT LAST_INSERT_ID()",keyProperty = "record.deptNo",before = false,resultType = Long.class)
-    Mono<Integer> insertWithSelectKey(InsertStatementProvider<Dept> insertStatement);
+    Mono<Integer> insertSelectiveWithSelectKey(InsertStatementProvider<Dept> insertStatement);
 
-    default Mono<Integer> insertWithSelectKey(Dept record) {
-        return ReactiveMyBatis3Utils.insert(this::insertWithSelectKey, record, dept, c ->
-                c.map(deptNo).toProperty("deptNo")
-                        .map(deptName).toProperty("deptName")
-                        .map(location).toProperty("location")
-                        .map(createTime).toProperty("createTime")
+    default Mono<Integer> insertSelectiveWithSelectKey(Dept record) {
+        return ReactiveMyBatis3Utils.insert(this::insertSelectiveWithSelectKey, record, dept, c ->
+                c.map(deptNo).toPropertyWhenPresent("deptNo", record::getDeptNo)
+                        .map(deptName).toPropertyWhenPresent("deptName", record::getDeptName)
+                        .map(location).toPropertyWhenPresent("location", record::getLocation)
+                        .map(createTime).toPropertyWhenPresent("createTime", record::getCreateTime)
         );
     }
 
