@@ -1,9 +1,12 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.suite.setup;
 
+import io.r2dbc.h2.H2ConnectionOption;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
+import io.r2dbc.spi.ConnectionFactoryOptions;
+import io.r2dbc.spi.Option;
 import io.r2dbc.spi.ValidationDepth;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
@@ -12,12 +15,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcConnectionFactoryProperties;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcMybatisProperties;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.ReactiveSqlSessionFactory;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.defaults.DefaultReactiveSqlSessionFactory;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.delegate.R2dbcMybatisConfiguration;
 import reactor.core.publisher.Hooks;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -67,12 +75,12 @@ public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
         R2dbcConnectionFactoryProperties r2dbcConnectionFactoryProperties = new R2dbcConnectionFactoryProperties();
         r2dbcConnectionFactoryProperties.setEnableMetrics(true);
         r2dbcConnectionFactoryProperties.setName("test-mybatis-r2dbc");
-        r2dbcConnectionFactoryProperties.setR2dbcUrl("r2dbc:mysql://"+super.databaseIp+":"+super.databasePort+"/"+super.databaseName);
+        r2dbcConnectionFactoryProperties.setR2dbcUrl("r2dbc:h2:file:///./database/r2dbc");
         r2dbcConnectionFactoryProperties.setUsername(super.databaseUsername);
         r2dbcConnectionFactoryProperties.setPassword(super.databasePassword);
         R2dbcConnectionFactoryProperties.Pool pool = new R2dbcConnectionFactoryProperties.Pool();
         pool.setMaxIdleTime(super.maxIdleTime);
-        pool.setValidationQuery("SELECT 1 FROM DUAL");
+        pool.setValidationQuery("SELECT 1");
         pool.setInitialSize(super.initialSize);
         pool.setMaxSize(super.maxSize);
         r2dbcConnectionFactoryProperties.setPool(pool);
@@ -113,7 +121,17 @@ public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
     }
 
     public ConnectionPool connectionFactory(R2dbcConnectionFactoryProperties r2dbcConnectionFactoryProperties){
-        ConnectionFactory connectionFactory = ConnectionFactories.get(r2dbcConnectionFactoryProperties.determineConnectionFactoryUrl());
+        String determineConnectionFactoryUrl = r2dbcConnectionFactoryProperties.determineConnectionFactoryUrl();
+        ConnectionFactoryOptions connectionFactoryOptions = ConnectionFactoryOptions.parse(determineConnectionFactoryUrl);
+        //MODE=MySQL;AUTO_RECONNECT=TRUE;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE
+        connectionFactoryOptions = connectionFactoryOptions.mutate()
+                .option(Option.valueOf("MODE"),"MySQL")
+                .option(Option.valueOf("AUTO_RECONNECT"),"TRUE")
+                .option(Option.valueOf("DB_CLOSE_DELAY"),"-1")
+                .option(Option.valueOf("DB_CLOSE_ON_EXIT"),"FALSE")
+                .option(Option.valueOf("options"),"DATABASE_TO_LOWER=TRUE")
+                .build();
+        ConnectionFactory connectionFactory = ConnectionFactories.get(connectionFactoryOptions);
         if (connectionFactory instanceof ConnectionPool) {
             return (ConnectionPool) connectionFactory;
         }

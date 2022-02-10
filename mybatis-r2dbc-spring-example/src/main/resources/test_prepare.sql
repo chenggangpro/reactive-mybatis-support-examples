@@ -1,44 +1,37 @@
--- Table structure for dept
 CREATE TABLE IF NOT EXISTS `dept`
 (
-  `dept_no`     BIGINT(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'dept no',
-  `dept_name`   varchar(64)         NOT NULL COMMENT 'dept name',
-  `location`    varchar(100)        NOT NULL COMMENT 'location',
-  `create_time` datetime            NOT NULL COMMENT 'create time',
-  PRIMARY KEY (`dept_no`)
+    `dept_no`     BIGINT(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'dept no',
+    `dept_name`   varchar(64)         NOT NULL COMMENT 'dept name',
+    `location`    varchar(100)        NOT NULL COMMENT 'location',
+    `create_time` datetime            NOT NULL COMMENT 'create time',
+    PRIMARY KEY (`dept_no`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='dept';
-
-
--- Records of dept
+    COMMENT ='dept';
 
 INSERT INTO dept VALUES ('1', 'ACCOUNTING', 'NEW YORK', NOW());
 INSERT INTO dept VALUES ('2', 'RESEARCH', 'DALLAS', NOW());
 INSERT INTO dept VALUES ('3', 'SALES', 'CHICAGO', NOW());
 INSERT INTO dept VALUES ('4', 'OPERATIONS', 'BOSTON', NOW());
 
--- Table structure for emp
-
 CREATE TABLE IF NOT EXISTS `emp`
 (
-  `emp_no`      BIGINT(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'emp no',
-  `emp_name`    varchar(64)         NOT NULL COMMENT 'emp name',
-  `job`         varchar(100)        NOT NULL COMMENT 'job',
-  `manager`     varchar(100)        NULL DEFAULT NULL COMMENT 'manager',
-  `hire_date`   date                NOT NULL COMMENT 'hire date',
-  `salary`      INT(11)      NOT NULL COMMENT 'salary',
-  `kpi`      DECIMAL(3,2)      NOT NULL COMMENT 'kpi',
-  `dept_no`     BIGINT(20) unsigned NOT NULL COMMENT 'dept no',
-  `create_time` datetime            NOT NULL COMMENT 'create time',
-  PRIMARY KEY (`emp_no`),
-  KEY FK_DEPTNO (dept_no),
-  CONSTRAINT FK_DEPTNO FOREIGN KEY (dept_no) REFERENCES dept (dept_no)
+    `emp_no`      BIGINT(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'emp no',
+    `emp_name`    varchar(64)         NOT NULL COMMENT 'emp name',
+    `job`         varchar(100)        NOT NULL COMMENT 'job',
+    `manager`     varchar(100)        NULL DEFAULT NULL COMMENT 'manager',
+    `hire_date`   date                NOT NULL COMMENT 'hire date',
+    `salary`      INT(11)      NOT NULL COMMENT 'salary',
+    `kpi`      DECIMAL(3,2)      NOT NULL COMMENT 'kpi',
+    `dept_no`     BIGINT(20) unsigned NOT NULL COMMENT 'dept no',
+    `create_time` datetime            NOT NULL COMMENT 'create time',
+    PRIMARY KEY (`emp_no`),
+    KEY FK_DEPTNO (dept_no),
+    FOREIGN KEY (dept_no) REFERENCES dept (dept_no)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='emp';
+    COMMENT ='emp';
 
--- Records of emp
 INSERT INTO emp VALUES ('1', 'SMITH', 'CLERK', '13', '1980-12-17', '800', '0.82','2',NOW());
 INSERT INTO emp VALUES ('2', 'ALLEN', 'SALESMAN', '6', '1981-02-20', '1600', '0.57', '3',NOW());
 INSERT INTO emp VALUES ('3', 'WARD', 'SALESMAN', '6', '1981-02-22', '1250', '0.73', '3',NOW());

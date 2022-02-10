@@ -69,7 +69,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insert(dept)
+        this.deptMapper.insertSelective(dept)
                 .as(this::withRollback)
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
@@ -83,7 +83,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insertWithSelectKey(dept)
+        this.deptMapper.insertSelectiveWithSelectKey(dept)
                 .as(this::withRollback)
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
@@ -97,7 +97,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insert(dept)
+        this.deptMapper.insertSelective(dept)
                 .then(Mono.defer(() -> deptMapper.deleteByDeptNo(dept.getDeptNo())))
                 .as(this::withRollback)
                 .as(StepVerifier::create)

@@ -15,9 +15,9 @@ mapperInterfacePackage: mapper
 # xml package
 mapperXmPackage: mapper
 # jdbc driver class name
-driverClass: com.mysql.cj.jdbc.Driver
+driverClass: org.h2.Driver
 # jdbc connection url
-connectionUrl: jdbc:mysql://127.0.0.1:3306/r2dbc?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+connectionUrl: jdbc:h2:file:./database/r2dbc;MODE=MySQL;AUTO_RECONNECT=TRUE;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE
 # jdbc username
 username: root
 # jdbc password
