@@ -13,5 +13,11 @@ reactive mybatis support examples
 
 #### Notice
 * Both `mybatis-dynamic-sql` is optional if you do not want to use it
-* Test cases use MySQL database with `test-prepare.sql` schema setup
-* Both example use `r2dbc-mariadb` as `r2dbc`'s driver dependency
+* Test cases 
+  * use `test-prepare.sql` to setup schema 
+  * branch :
+    * `master` : use MySQL database and `r2dbc-mariadb` as `r2dbc`'s driver dependency
+    * `oracle` : use Oracle database and `r2dbc-oracle` as `r2dbc`'s driver dependency
+    * `postgresql` : use PostgreSQL database and `r2dbc-postgresql` as `r2dbc`'s driver dependency
+    * `mssql` : use SQL-Server database and `r2dbc-mssql` as `r2dbc`'s driver dependency
+    * `h2` : use H2 database and `r2dbc-h2` as `r2dbc`'s driver dependency
