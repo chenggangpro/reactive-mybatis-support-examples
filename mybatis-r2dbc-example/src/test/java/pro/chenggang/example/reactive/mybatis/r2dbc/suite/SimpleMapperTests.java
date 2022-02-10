@@ -61,7 +61,7 @@ public class SimpleMapperTests extends MybatisR2dbcBaseTests {
 
     @Test
     public void testGetDeptByDeptNo () throws Exception {
-        Long deptNo = 1L;
+        Integer deptNo = 1;
         this.reactiveSqlSessionOperator.execute(
                 this.deptMapper.selectOneByDeptNo(deptNo)
         )
@@ -130,7 +130,7 @@ public class SimpleMapperTests extends MybatisR2dbcBaseTests {
     @Test
     public void testUpdateByDeptNo() throws Exception {
         Dept dept = new Dept();
-        dept.setDeptNo(1L);
+        dept.setDeptNo(1);
         dept.setDeptName("Update_dept_name");
         reactiveSqlSessionOperator.executeAndRollback(this.deptMapper.updateByDeptNo(dept))
                 .as(StepVerifier::create)

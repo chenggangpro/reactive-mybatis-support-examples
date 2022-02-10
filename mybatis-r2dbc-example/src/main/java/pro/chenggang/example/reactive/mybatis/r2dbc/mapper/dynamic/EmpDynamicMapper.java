@@ -13,6 +13,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.type.JdbcType;
@@ -50,6 +51,7 @@ public interface EmpDynamicMapper extends CommonSelectMapper {
     Mono<Integer> delete(DeleteStatementProvider deleteStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
+    @SelectKey(before = false, keyProperty = "record.empNo", statement = "SELECT currval('emp_emp_no_seq'::regclass)" ,resultType = Integer.class)
     @Options(useGeneratedKeys = true,keyProperty = "record.empNo")
     Mono<Integer> insert(InsertStatementProvider<Emp> insertStatement);
 
@@ -62,14 +64,14 @@ public interface EmpDynamicMapper extends CommonSelectMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="EmpResult", value = {
-        @Result(column="emp_no", property="empNo", jdbcType=JdbcType.BIGINT, id=true),
+        @Result(column="emp_no", property="empNo", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="emp_name", property="empName", jdbcType=JdbcType.VARCHAR),
         @Result(column="job", property="job", jdbcType=JdbcType.VARCHAR),
         @Result(column="manager", property="manager", jdbcType=JdbcType.VARCHAR),
         @Result(column="hire_date", property="hireDate", jdbcType=JdbcType.DATE),
         @Result(column="salary", property="salary", jdbcType=JdbcType.INTEGER),
-        @Result(column="kpi", property="kpi", jdbcType=JdbcType.DECIMAL),
-        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.BIGINT),
+        @Result(column="kpi", property="kpi", jdbcType=JdbcType.NUMERIC),
+        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.INTEGER),
         @Result(column="create_time", property="createTime", jdbcType=JdbcType.TIMESTAMP)
     })
     Flux<Emp> selectMany(SelectStatementProvider selectStatement);

@@ -20,7 +20,7 @@ public interface DeptMapper extends DeptDynamicMapper {
 
     Flux<Dept> selectAll();
 
-    Mono<Dept> selectOneByDeptNo(Long deptNo);
+    Mono<Dept> selectOneByDeptNo(Integer deptNo);
 
     Flux<Dept> selectListByTime(LocalDateTime createTime);
 
@@ -28,7 +28,7 @@ public interface DeptMapper extends DeptDynamicMapper {
 
     Mono<Integer> insertUseSelectKey(Dept dept);
 
-    Mono<Integer> deleteByDeptNo(Long deptNo);
+    Mono<Integer> deleteByDeptNo(Integer deptNo);
 
     Mono<Integer> updateByDeptNo(Dept dept);
 

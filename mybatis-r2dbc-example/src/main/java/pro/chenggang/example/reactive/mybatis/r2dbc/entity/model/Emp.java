@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.ibatis.javassist.runtime.Inner;
 
 /**
  * auto generated
@@ -28,7 +29,7 @@ public class Emp {
     /**
      * emp no
      */
-    protected Long empNo;
+    protected Integer empNo;
 
     /**
      * emp name
@@ -63,7 +64,7 @@ public class Emp {
     /**
      * dept no
      */
-    protected Long deptNo;
+    protected Integer deptNo;
 
     /**
      * create time

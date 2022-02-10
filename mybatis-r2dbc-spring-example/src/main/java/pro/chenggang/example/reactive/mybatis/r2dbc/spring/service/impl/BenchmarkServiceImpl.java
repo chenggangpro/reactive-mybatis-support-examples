@@ -32,7 +32,7 @@ public class BenchmarkServiceImpl implements BenchmarkService {
 
     @Override
     public Mono<?> getFromDb(String id) {
-        return deptMapper.selectOneByDeptNo(Long.parseLong(id))
+        return deptMapper.selectOneByDeptNo(Integer.parseInt(id))
                 .cast(Object.class)
                 .switchIfEmpty(Mono.defer(() -> Mono.just("data not exist")));
     }

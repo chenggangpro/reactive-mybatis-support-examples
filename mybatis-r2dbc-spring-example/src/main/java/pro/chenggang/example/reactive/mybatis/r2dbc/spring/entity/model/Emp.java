@@ -29,7 +29,7 @@ public class Emp {
     /**
      * emp no
      */
-    protected Long empNo;
+    protected Integer empNo;
 
     /**
      * emp name
@@ -64,7 +64,7 @@ public class Emp {
     /**
      * dept no
      */
-    protected Long deptNo;
+    protected Integer deptNo;
 
     /**
      * create time

@@ -1,5 +1,6 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -8,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-
-import java.time.LocalDateTime;
 
 /**
  * auto generated
@@ -27,7 +26,7 @@ public class Dept {
     /**
      * dept no
      */
-    protected Long deptNo;
+    protected Integer deptNo;
 
     /**
      * dept name

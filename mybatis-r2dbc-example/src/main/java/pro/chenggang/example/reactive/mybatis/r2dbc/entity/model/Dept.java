@@ -26,7 +26,7 @@ public class Dept {
     /**
      * dept no
      */
-    protected Long deptNo;
+    protected Integer deptNo;
 
     /**
      * dept name

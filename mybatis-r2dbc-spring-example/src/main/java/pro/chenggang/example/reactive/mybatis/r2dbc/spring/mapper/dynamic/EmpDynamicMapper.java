@@ -1,5 +1,11 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic;
 
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.EmpDynamicSqlSupport.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
@@ -7,6 +13,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.type.JdbcType;
@@ -21,17 +28,13 @@ import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
+import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 import org.mybatis.dynamic.sql.where.WhereApplier;
+import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model.Emp;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.dynamic.CommonSelectMapper;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.dynamic.ReactiveMyBatis3Utils;
-import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model.Emp;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
-
-import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
-import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.EmpDynamicSqlSupport.*;
 
 /**
  * auto generated
@@ -48,7 +51,8 @@ public interface EmpDynamicMapper extends CommonSelectMapper {
     Mono<Integer> delete(DeleteStatementProvider deleteStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
-    @Options(useGeneratedKeys = true,keyProperty = "record.empNo",keyColumn = "emp_no")
+    @SelectKey(before = false, keyProperty = "record.empNo", statement = "SELECT currval('emp_emp_no_seq'::regclass)" ,resultType = Integer.class)
+    @Options(useGeneratedKeys = true,keyProperty = "record.empNo")
     Mono<Integer> insert(InsertStatementProvider<Emp> insertStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultiple")
@@ -60,14 +64,14 @@ public interface EmpDynamicMapper extends CommonSelectMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="EmpResult", value = {
-        @Result(column="emp_no", property="empNo", jdbcType=JdbcType.BIGINT, id=true),
+        @Result(column="emp_no", property="empNo", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="emp_name", property="empName", jdbcType=JdbcType.VARCHAR),
         @Result(column="job", property="job", jdbcType=JdbcType.VARCHAR),
         @Result(column="manager", property="manager", jdbcType=JdbcType.VARCHAR),
         @Result(column="hire_date", property="hireDate", jdbcType=JdbcType.DATE),
         @Result(column="salary", property="salary", jdbcType=JdbcType.INTEGER),
-        @Result(column="kpi", property="kpi", jdbcType=JdbcType.DECIMAL),
-        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.BIGINT),
+        @Result(column="kpi", property="kpi", jdbcType=JdbcType.NUMERIC),
+        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.INTEGER),
         @Result(column="create_time", property="createTime", jdbcType=JdbcType.TIMESTAMP)
     })
     Flux<Emp> selectMany(SelectStatementProvider selectStatement);

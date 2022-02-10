@@ -56,16 +56,16 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     private Mono<Dept> doBusinessInternal(){
-        return deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4L)))
+        return deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4)))
                 .doOnNext(people -> log.debug("[Before] Get People ,People:{}",people))
                 .flatMap(people -> deptMapper.updateSelective(new Dept()
                         .setDeptName("InsertDept")
                         .setLocation("InsertLocation")
                         .setCreateTime(LocalDateTime.now()),
-                        dsl -> dsl.where(deptNo,isEqualTo(4L))))
-                .flatMap(value -> deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4L))))
+                        dsl -> dsl.where(deptNo,isEqualTo(4))))
+                .flatMap(value -> deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4))))
                 .doOnNext(updatePeople -> log.debug("[After Update] Get People ,People:{}",updatePeople))
-                .flatMap(updatePeople -> deptMapper.delete(dsl -> dsl.where(deptNo, isEqualTo(4L))))
-                .flatMap(deleteResult -> deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4L))));
+                .flatMap(updatePeople -> deptMapper.delete(dsl -> dsl.where(deptNo, isEqualTo(4))))
+                .flatMap(deleteResult -> deptMapper.selectOne(dsl -> dsl.where(deptNo, isEqualTo(4))));
     }
 }

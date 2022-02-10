@@ -42,7 +42,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
 
     @Test
     public void testGetDeptByDeptNo () throws Exception {
-        Long deptNo = 1L;
+        Integer deptNo = 1;
         this.deptMapper.selectOneByDeptNo(deptNo)
                 .as(StepVerifier::create)
                 .expectNextMatches(dept -> deptNo.equals(dept.getDeptNo()))
@@ -69,7 +69,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insert(dept)
+        this.deptMapper.insertSelective(dept)
                 .as(this::withRollback)
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
@@ -83,7 +83,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insertWithSelectKey(dept)
+        this.deptMapper.insertSelectiveWithSelectKey(dept)
                 .as(this::withRollback)
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
@@ -97,7 +97,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        this.deptMapper.insert(dept)
+        this.deptMapper.insertSelective(dept)
                 .then(Mono.defer(() -> deptMapper.deleteByDeptNo(dept.getDeptNo())))
                 .as(this::withRollback)
                 .as(StepVerifier::create)
@@ -108,7 +108,7 @@ public class DeptMapperTest extends ReactiveMybatisSupportR2dbcSpringApplication
     @Test
     public void testUpdateByDeptNo() throws Exception {
         Dept dept = new Dept();
-        dept.setDeptNo(1L);
+        dept.setDeptNo(1);
         dept.setDeptName("Update_dept_name");
         this.deptMapper.updateByDeptNo(dept)
                 .as(this::withRollback)

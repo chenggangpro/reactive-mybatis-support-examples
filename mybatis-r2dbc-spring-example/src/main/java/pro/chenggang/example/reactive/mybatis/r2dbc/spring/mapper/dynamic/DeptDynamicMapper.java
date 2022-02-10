@@ -1,5 +1,11 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic;
 
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
@@ -7,6 +13,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.type.JdbcType;
@@ -22,16 +29,11 @@ import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import org.mybatis.dynamic.sql.where.WhereApplier;
+import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model.Dept;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.dynamic.CommonSelectMapper;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.dynamic.ReactiveMyBatis3Utils;
-import pro.chenggang.example.reactive.mybatis.r2dbc.spring.entity.model.Dept;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
-
-import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
-import static pro.chenggang.example.reactive.mybatis.r2dbc.spring.mapper.dynamic.DeptDynamicSqlSupport.*;
 
 /**
  * auto generated
@@ -48,7 +50,8 @@ public interface DeptDynamicMapper extends CommonSelectMapper {
     Mono<Integer> delete(DeleteStatementProvider deleteStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
-    @Options(useGeneratedKeys = true,keyProperty = "record.deptNo",keyColumn = "dept_no")
+    @SelectKey(before = false, keyProperty = "record.deptNo", statement = "SELECT currval('dept_dept_no_seq')" ,resultType = Integer.class)
+    @Options(useGeneratedKeys = true,keyProperty = "record.deptNo")
     Mono<Integer> insert(InsertStatementProvider<Dept> insertStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultiple")
@@ -60,7 +63,7 @@ public interface DeptDynamicMapper extends CommonSelectMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="DeptResult", value = {
-        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.BIGINT, id=true),
+        @Result(column="dept_no", property="deptNo", jdbcType=JdbcType.INTEGER, id=true),
         @Result(column="dept_name", property="deptName", jdbcType=JdbcType.VARCHAR),
         @Result(column="location", property="location", jdbcType=JdbcType.VARCHAR),
         @Result(column="create_time", property="createTime", jdbcType=JdbcType.TIMESTAMP)
