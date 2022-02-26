@@ -11,9 +11,9 @@ public class R2dbcTestConfig {
     protected Integer initialSize = 1;
     protected Integer maxSize = 3;
     protected Duration maxIdleTime = Duration.ofMinutes(30);
-    protected String databaseIp = "127.0.0.1";
-    protected String databasePort = "3306";
-    protected String databaseName = "r2dbc";
-    protected String databaseUsername = "root";
-    protected String databasePassword = "123456";
+    protected String databaseIp = "192.168.31.133";
+    protected String databasePort = "1521";
+    protected String databaseName = "srp";
+    protected String databaseUsername = "srp";
+    protected String databasePassword = "password";
 }

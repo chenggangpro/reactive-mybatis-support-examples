@@ -5,13 +5,14 @@ server:
 r2dbc:
   mybatis:
     mapper-locations: classpath:mapper/*.xml
-    map-underscore-to-camel-case: true
+    configuration:
+      map-underscore-to-camel-case: true
 spring:
   r2dbc:
     mybatis:
-      r2dbc-url: r2dbc:mysql://127.0.0.1:3306/r2dbc?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
-      username: root
-      password: 123456
+      r2dbc-url: r2dbc:oracle://192.168.31.133:1521/srp?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+      username: srp
+      password: password
       pool:
         max-idle-time: PT3M
         validation-query: SELECT 1 FROM DUAL

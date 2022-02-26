@@ -12,6 +12,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.SelectKey;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.type.JdbcType;
@@ -48,7 +49,7 @@ public interface DeptDynamicMapper extends CommonSelectMapper {
     Mono<Integer> delete(DeleteStatementProvider deleteStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
-    @Options(useGeneratedKeys = true,keyProperty = "record.deptNo")
+    @SelectKey(statement="select dept_seq.currval from dual", keyProperty="record.deptNo", before=false, resultType=Long.class)
     Mono<Integer> insert(InsertStatementProvider<Dept> insertStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultiple")

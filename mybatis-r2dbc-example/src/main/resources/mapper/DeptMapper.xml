@@ -20,16 +20,16 @@
     dept.create_time AS dept_create_time
   </sql>
 
-  <insert id="insertOne" parameterType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept"
-          useGeneratedKeys="true"
-          keyColumn="dept_no"
-          keyProperty="deptNo">
+  <insert id="insertOne" parameterType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
+    <selectKey  keyProperty="deptNo" resultType="long" order="AFTER">
+      select dept_seq.currval from dual
+    </selectKey>
     INSERT INTO dept (dept_name, location, create_time) VALUES (#{deptName},#{location},#{createTime})
   </insert>
 
   <insert id="insertUseSelectKey" parameterType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
-    <selectKey resultType="long" order="AFTER" keyProperty="deptNo">
-      SELECT LAST_INSERT_ID()
+    <selectKey  keyProperty="deptNo" resultType="Long" order="AFTER">
+      select dept_seq.currval from dual
     </selectKey>
     INSERT INTO dept (dept_name, location, create_time) VALUES (#{deptName},#{location},#{createTime})
   </insert>
@@ -49,7 +49,7 @@
     SELECT * FROM dept where dept_no = #{deptNo}
   </select>
   <select id="selectListByTime" resultType="pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept">
-    SELECT * FROM dept where DATE(create_time) = DATE(#{createTime})
+    SELECT * FROM dept where TO_CHAR(create_time, 'YYYY-MM-DD') = TO_CHAR(#{createTime}, 'YYYY-MM-DD')
   </select>
 
   <resultMap id="DeptWithEmp" type="pro.chenggang.example.reactive.mybatis.r2dbc.entity.extend.DeptWithEmp">

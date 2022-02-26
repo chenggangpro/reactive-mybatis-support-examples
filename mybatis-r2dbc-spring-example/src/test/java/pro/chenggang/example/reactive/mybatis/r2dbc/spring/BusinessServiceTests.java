@@ -21,18 +21,10 @@ public class BusinessServiceTests extends ReactiveMybatisSupportR2dbcSpringAppli
 
     @Test
     public void testDoWithoutTransaction() throws Exception{
-        int count = 10;
-        CountDownLatch countDownLatch = new CountDownLatch(count);
-        for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
-                businessService.doWithoutTransaction()
-                        .as(StepVerifier::create)
-                        .expectNextCount(1)
-                        .verifyComplete();
-                countDownLatch.countDown();
-            }).start();
-        }
-        countDownLatch.await();
+        businessService.doWithoutTransaction()
+                .as(StepVerifier::create)
+                .expectNextCount(1)
+                .verifyComplete();
     }
 
     @Test

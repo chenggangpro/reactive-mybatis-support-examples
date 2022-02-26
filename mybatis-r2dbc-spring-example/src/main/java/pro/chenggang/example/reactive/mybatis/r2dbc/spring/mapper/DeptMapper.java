@@ -62,7 +62,7 @@ public interface DeptMapper extends DeptDynamicMapper {
     Flux<DeptWithEmp> selectDeptWithEmpList();
 
     @InsertProvider(type= SqlProviderAdapter.class, method="insert")
-    @SelectKey(statement = "SELECT LAST_INSERT_ID()",keyProperty = "record.deptNo",before = false,resultType = Long.class)
+    @SelectKey(statement="select dept_seq.currval from dual", keyProperty="record.deptNo", before=false, resultType=Long.class)
     Mono<Integer> insertSelectiveWithSelectKey(InsertStatementProvider<Dept> insertStatement);
 
     default Mono<Integer> insertSelectiveWithSelectKey(Dept record) {
