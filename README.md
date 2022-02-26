@@ -21,3 +21,4 @@ reactive mybatis support examples
     * `postgresql` : use PostgreSQL database and `r2dbc-postgresql` as `r2dbc`'s driver dependency
     * `mssql` : use SQL-Server database and `r2dbc-mssql` as `r2dbc`'s driver dependency
     * `h2` : use H2 database and `r2dbc-h2` as `r2dbc`'s driver dependency
+    * `oracle` : use Oracle database and `r2dbc-oracle` as `r2dbc`'s driver dependency
