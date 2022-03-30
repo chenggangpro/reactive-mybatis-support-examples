@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <reactive-mybatis-support.version>1.0.6.RELEASE</reactive-mybatis-support.version>
+        <reactive-mybatis-support.version>1.0.8.RELEASE</reactive-mybatis-support.version>
     </properties>
 
     <dependencies>
