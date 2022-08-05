@@ -1,6 +1,5 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.suite.setup;
 
-import io.r2dbc.h2.H2ConnectionOption;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactories;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcConnectionFactoryProperties;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcMybatisProperties;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.ReactiveSqlSessionFactory;
@@ -24,8 +21,7 @@ import pro.chenggang.project.reactive.mybatis.support.r2dbc.defaults.DefaultReac
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.delegate.R2dbcMybatisConfiguration;
 import reactor.core.publisher.Hooks;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.Duration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -83,6 +79,9 @@ public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
         pool.setValidationQuery("SELECT 1");
         pool.setInitialSize(super.initialSize);
         pool.setMaxSize(super.maxSize);
+        pool.setMaxAcquireTime(Duration.ofSeconds(10));
+        pool.setAcquireRetry(3);
+        pool.setMaxCreateConnectionTime(Duration.ofSeconds(30));
         r2dbcConnectionFactoryProperties.setPool(pool);
         return r2dbcConnectionFactoryProperties;
     }
