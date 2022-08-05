@@ -11,7 +11,16 @@ public class MyBatisGeneratorAction {
 
     @Test
     public void generate(){
-        MybatisDynamicCodeGenerator.getInstance().generate(MyBatisGeneratorAction.class);
+        MybatisDynamicCodeGenerator.withYamlConfiguration()
+                .customConfigure()
+                .applyGenerateBasePackageFromClass(MyBatisGeneratorAction.class)
+                .customizeGeneratorProperties()
+                .targetPackageBuilder()
+                .basePackage("pro.chenggang.example.reactive.mybatis.r2dbc.spring")
+                .thenPropertiesBuilder()
+                .thenConfigurer()
+                .toGenerator()
+                .generate();
     }
 
 }
