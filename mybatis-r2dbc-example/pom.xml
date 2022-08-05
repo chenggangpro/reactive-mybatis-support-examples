@@ -15,12 +15,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <reactive-mybatis-support.version>1.1.1.RELEASE</reactive-mybatis-support.version>
+        <reactive-mybatis-support.version>1.2.4.RELEASE</reactive-mybatis-support.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.r2dbc</groupId>
+            <groupId>org.postgresql</groupId>
             <artifactId>r2dbc-postgresql</artifactId>
         </dependency>
         <dependency>
