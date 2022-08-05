@@ -27,9 +27,9 @@ targetPackage:
   mapperXmlPackage: "mapper"
 targetConnection:
   # The jdbc driver class name
-  jdbcDriverClassName: "com.mysql.cj.jdbc.Driver"
+  jdbcDriverClassName: "org.h2.Driver"
   # The jdbc connection url
-  jdbcConnectionUrl: "jdbc:mysql://127.0.0.1:3306/r2dbc?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false"
+  jdbcConnectionUrl: "jdbc:h2:file:./database/r2dbc;MODE=MySQL;AUTO_RECONNECT=TRUE;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;DB_CLOSE_ON_EXIT=FALSE"
   # The jdbc username
   username: "root"
   # The jdbc password
