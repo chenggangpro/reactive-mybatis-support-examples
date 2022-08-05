@@ -27,13 +27,13 @@ targetPackage:
   mapperXmlPackage: "mapper"
 targetConnection:
   # The jdbc driver class name
-  jdbcDriverClassName: "com.mysql.cj.jdbc.Driver"
+  jdbcDriverClassName: "oracle.jdbc.OracleDriver"
   # The jdbc connection url
-  jdbcConnectionUrl: "jdbc:mysql://127.0.0.1:3306/r2dbc?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false"
+  jdbcConnectionUrl: "jdbc:oracle://127.0.0.1:1521/srp?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false"
   # The jdbc username
-  username: "root"
+  username: "srp"
   # The jdbc password
-  password: "123456"
+  password: "password"
 # The Lombok configs if needed
 lombokConfigs:
   - ToString
