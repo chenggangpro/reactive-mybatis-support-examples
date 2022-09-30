@@ -14,7 +14,7 @@ spring:
       password: 123456
       pool:
         max-idle-time: PT3M
-        validation-query: SELECT 1 FROM DUAL
+        validation-query: SELECT 1
         initial-size: 1
         max-size: 3
         acquire-retry: 3

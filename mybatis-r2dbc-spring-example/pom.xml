@@ -32,6 +32,10 @@
             <artifactId>r2dbc-mariadb</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-mssql</artifactId>
+        </dependency>
+        <dependency>
             <groupId>pro.chenggang</groupId>
             <artifactId>mybatis-r2dbc-spring</artifactId>
             <version>${reactive-mybatis-support.version}</version>
