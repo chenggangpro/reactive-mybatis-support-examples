@@ -35,7 +35,7 @@ public class MultiDatabaseConfiguration {
 
     @Bean
     public ReactiveSqlSessionFactory reactiveSqlSessionFactory(R2dbcMybatisConfiguration configuration, BeanNameRoutingConnectionFactory beanNameRoutingConnectionFactory) {
-        configuration.setConnectionFactory(beanNameRoutingConnectionFactory);
+        configuration.setConnectionFactory(new TransactionAwareConnectionFactoryProxy(beanNameRoutingConnectionFactory));
         SpringReactiveMybatisExecutor springReactiveMybatisExecutor = new SpringReactiveMybatisExecutor(configuration);
         return DefaultReactiveSqlSessionFactory.newBuilder()
                 .withR2dbcMybatisConfiguration(configuration)
