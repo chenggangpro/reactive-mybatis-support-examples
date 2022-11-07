@@ -30,12 +30,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <reactor-bom.version>2020.0.21</reactor-bom.version>
-        <r2dbc-bom.version>Borca-SR1</r2dbc-bom.version>
+        <reactor-bom.version>2020.0.24</reactor-bom.version>
+        <r2dbc-bom.version>Borca-SR2</r2dbc-bom.version>
         <mybatis-generator-core.version>1.4.1</mybatis-generator-core.version>
-        <mybatis-dynamic-sql.version>1.4.0</mybatis-dynamic-sql.version>
+        <mybatis-dynamic-sql.version>1.4.1</mybatis-dynamic-sql.version>
         <lombok.version>1.18.24</lombok.version>
-        <spring.boot.version>2.7.2</spring.boot.version>
+        <spring.boot.version>2.7.5</spring.boot.version>
         <blockhound.version>1.0.6.RELEASE</blockhound.version>
         <junit-jupiter.version>5.8.2</junit-jupiter.version>
     </properties>
