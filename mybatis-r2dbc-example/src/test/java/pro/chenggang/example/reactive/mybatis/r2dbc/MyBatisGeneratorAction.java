@@ -1,5 +1,6 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pro.chenggang.project.reactive.mybatis.support.generator.core.MybatisDynamicCodeGenerator;
 
@@ -9,6 +10,7 @@ import pro.chenggang.project.reactive.mybatis.support.generator.core.MybatisDyna
  */
 public class MyBatisGeneratorAction {
 
+    @Disabled
     @Test
     public void generate(){
         MybatisDynamicCodeGenerator.withYamlConfiguration()
