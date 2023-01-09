@@ -1,5 +1,9 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.suite.setup;
 
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.HostConfig;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactories;
@@ -12,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcConnectionFactoryProperties;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.support.R2dbcMybatisProperties;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.ReactiveSqlSessionFactory;
@@ -31,6 +38,7 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * @date 12/15/21.
  */
 @TestInstance(PER_CLASS)
+@Testcontainers
 public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
 
     protected R2dbcMybatisProperties r2dbcMybatisProperties;
@@ -39,8 +47,27 @@ public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
     protected ConnectionFactory connectionFactory;
     protected ReactiveSqlSessionFactory reactiveSqlSessionFactory;
 
+    @Container
+    public static MySQLContainer<?> container =
+            new MySQLContainer<>("mysql:latest")
+                    .withDatabaseName(R2dbcTestConfig.databaseName)
+                    .withUsername(R2dbcTestConfig.databaseUsername)
+                    .withPassword(R2dbcTestConfig.databasePassword)
+                    .withExposedPorts(Integer.valueOf(R2dbcTestConfig.databasePort))
+                    .withInitScript("test_prepare.sql")
+                    .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
+                            new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(Integer.parseInt(R2dbcTestConfig.databaseDockerExposedPort)),
+                                    new ExposedPort(Integer.valueOf(R2dbcTestConfig.databasePort))))
+                    ));
+
     @BeforeAll
     public void setUp() throws Exception{
+        //container based configurations.
+        container.withReuse(true);
+        container.start();
+        databaseIp = container.getHost();
+        //end of container based configurations
+
         Hooks.onOperatorDebug();
         Hooks.enableContextLossTracking();
         this.r2dbcMybatisProperties = this.r2dbcMybatisProperties();
@@ -69,7 +96,7 @@ public class MybatisR2dbcBaseTests extends R2dbcTestConfig {
         R2dbcConnectionFactoryProperties r2dbcConnectionFactoryProperties = new R2dbcConnectionFactoryProperties();
         r2dbcConnectionFactoryProperties.setEnableMetrics(true);
         r2dbcConnectionFactoryProperties.setName("test-mybatis-r2dbc");
-        r2dbcConnectionFactoryProperties.setR2dbcUrl("r2dbc:mysql://"+super.databaseIp+":"+super.databasePort+"/"+super.databaseName);
+        r2dbcConnectionFactoryProperties.setR2dbcUrl("r2dbc:mysql://"+super.databaseIp+":"+super.databaseDockerExposedPort+"/"+super.databaseName);
         r2dbcConnectionFactoryProperties.setUsername(super.databaseUsername);
         r2dbcConnectionFactoryProperties.setPassword(super.databasePassword);
         R2dbcConnectionFactoryProperties.Pool pool = new R2dbcConnectionFactoryProperties.Pool();

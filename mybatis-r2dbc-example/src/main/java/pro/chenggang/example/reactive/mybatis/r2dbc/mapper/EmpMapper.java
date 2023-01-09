@@ -1,6 +1,10 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import pro.chenggang.example.reactive.mybatis.r2dbc.entity.extend.EmpWithDept;
 import pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Emp;
 import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.dynamic.EmpDynamicMapper;
@@ -16,4 +20,9 @@ public interface EmpMapper extends EmpDynamicMapper {
     Flux<EmpWithDept> selectEmpWithDeptList();
 
     Flux<Emp> selectByParameterMap(Emp emp);
+
+    @SelectProvider(type= SqlProviderAdapter.class, method="select")
+    @ResultMap("pro.chenggang.example.reactive.mybatis.r2dbc.mapper.EmpMapper.EmpWithDept")
+    Flux<EmpWithDept> selectManyEmpWithDept(SelectStatementProvider selectStatement);
+
 }

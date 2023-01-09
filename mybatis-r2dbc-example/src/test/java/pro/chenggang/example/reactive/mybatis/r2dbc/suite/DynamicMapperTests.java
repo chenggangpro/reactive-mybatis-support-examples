@@ -1,18 +1,24 @@
 package pro.chenggang.example.reactive.mybatis.r2dbc.suite;
 
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
-import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
-import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
-import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
+import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
-import org.mybatis.dynamic.sql.util.Buildable;
+
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import pro.chenggang.example.reactive.mybatis.r2dbc.entity.model.Dept;
-import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.dynamic.DeptDynamicMapper;
-import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.dynamic.DeptDynamicSqlSupport;
-import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.dynamic.EmpDynamicMapper;
+import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.DeptMapper;
+import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.EmpMapper;
+import pro.chenggang.example.reactive.mybatis.r2dbc.mapper.dynamic.*;
 import pro.chenggang.example.reactive.mybatis.r2dbc.suite.setup.MybatisR2dbcBaseTests;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.ReactiveSqlSession;
 import pro.chenggang.project.reactive.mybatis.support.r2dbc.ReactiveSqlSessionOperator;
@@ -21,21 +27,19 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * @author Gang Cheng
- * @date 12/15/21.
- */
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 @Slf4j
 public class DynamicMapperTests extends MybatisR2dbcBaseTests {
 
     private ReactiveSqlSession reactiveSqlSession;
-    private DeptDynamicMapper deptDynamicMapper;
-    private EmpDynamicMapper empDynamicMapper;
+    private DeptMapper deptDynamicMapper;
+    private EmpMapper empDynamicMapper;
 
     private ReactiveSqlSessionOperator reactiveSqlSessionOperator;
 
@@ -43,92 +47,84 @@ public class DynamicMapperTests extends MybatisR2dbcBaseTests {
     public void initSqlSession () throws Exception {
         this.reactiveSqlSession = super.reactiveSqlSessionFactory.openSession();
         this.reactiveSqlSessionOperator = new DefaultReactiveSqlSessionOperator(reactiveSqlSessionFactory);
-        this.deptDynamicMapper = this.reactiveSqlSession.getMapper(DeptDynamicMapper.class);
-        this.empDynamicMapper = this.reactiveSqlSession.getMapper(EmpDynamicMapper.class);
+        this.deptDynamicMapper = this.reactiveSqlSession.getMapper(DeptMapper.class);
+        this.empDynamicMapper = this.reactiveSqlSession.getMapper(EmpMapper.class);
     }
 
     @Test
     public void testGetDeptTotalCount () throws Exception {
-        SelectStatementProvider ssp = new SelectStatementProvider() {
-            @Override
-            public Map<String, Object> getParameters() {
-                Map<String, Object> map= new HashMap<>();
-                map.put("empty", new Object());
-                return map;
-            }
-
-            @Override
-            public String getSelectStatement() {
-                return "select count(*) from dept";
-            }
-        };
-
-        reactiveSqlSessionOperator.execute(
-                this.deptDynamicMapper.count(ssp)
-        )
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(SqlBuilder.count())
+                .from(DeptDynamicSqlSupport.dept)
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+        this.reactiveSqlSessionOperator.execute(deptDynamicMapper.count(selectStatementProvider)
+                )
                 .as(StepVerifier::create)
                 .expectNext(4L)
                 .verifyComplete();
-    }
 
+    }
 
     @Test
     public void testGetAllDept () throws Exception {
-        //for lambdas
-        //SelectDSLCompleter dsl = selectModelQueryExpressionDSL ->
-        //        selectModelQueryExpressionDSL.where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isGreaterThan(0L));
-        SelectDSLCompleter dsl = new SelectDSLCompleter() {
-            @Override
-            public Buildable<SelectModel> apply(QueryExpressionDSL<SelectModel> selectModelQueryExpressionDSL) {
-                return selectModelQueryExpressionDSL.where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isGreaterThan(0L));
-            };
-        };
+
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(DeptDynamicMapper.selectList)
+                .from(DeptDynamicSqlSupport.dept)
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+
         reactiveSqlSessionOperator.executeMany(
-                        this.deptDynamicMapper.select(dsl)
+                        this.deptDynamicMapper.selectMany(selectStatementProvider)
                 )
                 .as(StepVerifier::create)
                 .expectNextCount(4)
                 .verifyComplete();
+
     }
 
     @Test
     public void testGetDeptByDeptNo () throws Exception {
         Long deptNo = 1L;
 
-        SelectDSLCompleter dsl = new SelectDSLCompleter() {
-            @Override
-            public Buildable<SelectModel> apply(QueryExpressionDSL<SelectModel> selectModelQueryExpressionDSL) {
-                return selectModelQueryExpressionDSL.where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isEqualTo(deptNo));
-            };
-        };
-        this.reactiveSqlSessionOperator.execute(
-                //using lambdas to get same functionality
-                //this.deptDynamicMapper.selectOne(selectModelQueryExpressionDSL ->
-                //                        selectModelQueryExpressionDSL.where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isEqualTo(deptNo)))
-                this.deptDynamicMapper.selectOne(dsl)
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(DeptDynamicMapper.selectList)
+                .from(DeptDynamicSqlSupport.dept)
+                .where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isEqualTo(deptNo))
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+
+        reactiveSqlSessionOperator.executeMany(
+                        this.deptDynamicMapper.selectMany(selectStatementProvider)
                 )
                 .as(StepVerifier::create)
                 .expectNextMatches(dept -> deptNo.equals(dept.getDeptNo()))
                 .verifyComplete();
+
     }
 
-    /**
     @Test
     public void testGetDeptListByCreateTime () throws Exception {
         LocalDateTime createTime = LocalDateTime.now();
-        this.reactiveSqlSessionOperator.executeMany(
-                this.deptMapper.selectListByTime(createTime)
-        )
+        Long deptNo = 1L;
+
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(DeptDynamicMapper.selectList)
+                .from(DeptDynamicSqlSupport.dept)
+                .where(DeptDynamicSqlSupport.createTime, SqlBuilder.isLessThan(createTime))
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+
+        reactiveSqlSessionOperator.executeMany(
+                        this.deptDynamicMapper.selectMany(selectStatementProvider)
+                )
                 .as(StepVerifier::create)
+                .expectNextCount(4)
                 .thenConsumeWhile(result -> {
                     assertThat(result)
                             .extracting(dept -> dept.getCreateTime().toLocalDate())
-                            .matches(dateTime -> createTime.toLocalDate().equals(dateTime));
+                            .matches(dateTime -> createTime.toLocalDate().isAfter(dateTime));
                     return true;
                 })
                 .verifyComplete();
     }
-     **/
 
     @Test
     public void testInsertAndReturnGenerateKey() throws Exception{
@@ -141,43 +137,16 @@ public class DynamicMapperTests extends MybatisR2dbcBaseTests {
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
                 .verifyComplete();
         assertThat(dept.getDeptNo()).isNotNull();
-        System.out.println("Department instance after insertSelective is " + dept.toString());
-
-        //Mono.just("Hello")
-        Dept dept1 = new Dept();
-        dept1.setDeptName("Test_dept_name");
-        dept1.setCreateTime(LocalDateTime.now());
-        dept1.setLocation("Test_location");
-        Mono<Integer> primaryKeyMono = reactiveSqlSessionOperator.executeAndRollback(this.deptDynamicMapper.insertSelective(dept1));
-        primaryKeyMono.subscribe(data -> System.out.println("printing data:" + data), // onNext
-                err -> System.out.println(err),  // onError
-                () -> System.out.println("Completed!") // onComplete
-        );
     }
 
-    /**
-
+    // TODO insertOne does not seem to work.
     @Test
-    public void testInsertAndReturnGenerateKeyShyam() throws Exception{
+    public void testInsertOneAndReturnGenerateKey() throws Exception{
         Dept dept = new Dept();
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
-        reactiveSqlSessionOperator.executeAndRollback(this.deptMapperShyam.insertOne1(dept))
-                .log()
-                .as(StepVerifier::create)
-                .expectNextMatches(effectRowCount -> effectRowCount == 1)
-                .verifyComplete();
-        assertThat(dept.getDeptNo()).isNotNull();
-    }
-
-    @Test
-    public void testInsertBySelectKeyAndReturnGenerateKey() throws Exception{
-        Dept dept = new Dept();
-        dept.setDeptName("Test_dept_name");
-        dept.setCreateTime(LocalDateTime.now());
-        dept.setLocation("Test_location");
-        reactiveSqlSessionOperator.executeAndRollback(this.deptMapper.insertUseSelectKey(dept))
+        reactiveSqlSessionOperator.executeAndRollback(this.deptDynamicMapper.insertOne(dept))
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
                 .verifyComplete();
@@ -190,21 +159,30 @@ public class DynamicMapperTests extends MybatisR2dbcBaseTests {
         dept.setDeptName("Test_dept_name");
         dept.setCreateTime(LocalDateTime.now());
         dept.setLocation("Test_location");
+
         reactiveSqlSessionOperator.executeAndRollback(
-                this.deptMapper.insertOne(dept)
-                        .then(Mono.defer(() -> this.deptMapper.deleteByDeptNo(dept.getDeptNo())))
+                this.deptDynamicMapper.insertSelective(dept)
+                        .then(Mono.defer(() -> {
+                            DeleteStatementProvider deleteStatementProvider = SqlBuilder.deleteFrom(DeptDynamicSqlSupport.dept)
+                                    .where(DeptDynamicSqlSupport.deptNo, SqlBuilder.isEqualTo(dept.getDeptNo()))
+                                    .build()
+                                    .render(RenderingStrategies.MYBATIS3);
+
+                            return this.deptDynamicMapper.delete(deleteStatementProvider);
+                        }))
         )
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
                 .verifyComplete();
     }
 
+
     @Test
     public void testUpdateByDeptNo() throws Exception {
         Dept dept = new Dept();
         dept.setDeptNo(1L);
         dept.setDeptName("Update_dept_name");
-        reactiveSqlSessionOperator.executeAndRollback(this.deptMapper.updateByDeptNo(dept))
+        reactiveSqlSessionOperator.executeAndRollback(this.deptDynamicMapper.updateSelectiveByPrimaryKey(dept))
                 .as(StepVerifier::create)
                 .expectNextMatches(effectRowCount -> effectRowCount == 1)
                 .verifyComplete();
@@ -212,49 +190,82 @@ public class DynamicMapperTests extends MybatisR2dbcBaseTests {
 
     @Test
     public void testGetDeptWithEmp() throws Exception {
+        BasicColumn[] selectColumns = BasicColumn.columnList(DeptDynamicSqlSupport.deptNo,
+                DeptDynamicSqlSupport.deptName,
+                DeptDynamicSqlSupport.location,
+                DeptDynamicSqlSupport.createTime,
+                EmpDynamicSqlSupport.empNo.as("emp_emp_no"),
+                EmpDynamicSqlSupport.empName.as("emp_emp_name"),
+                EmpDynamicSqlSupport.job.as("emp_job"),
+                EmpDynamicSqlSupport.manager.as("emp_manager"),
+                EmpDynamicSqlSupport.hireDate.as("emp_hire_date"),
+                EmpDynamicSqlSupport.salary.as("emp_salary"),
+                EmpDynamicSqlSupport.kpi.as("emp_kpi"),
+                EmpDynamicSqlSupport.deptNo.as("emp_dept_no"),
+                EmpDynamicSqlSupport.createTime.as("emp_create_time")
+        );
+        // Due to @ResultMap("pro.chenggang.example.reactive.mybatis.r2dbc.mapper.DeptMapper.DeptWithEmp") 's mapping definition in xml,
+        // I set column alias manually for `ResultMap`
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(selectColumns)
+                .from(DeptDynamicSqlSupport.dept)
+                .leftJoin(EmpDynamicSqlSupport.emp, SqlBuilder.on(DeptDynamicSqlSupport.deptNo, SqlBuilder.equalTo(EmpDynamicSqlSupport.deptNo)))
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+        AtomicInteger recordCount = new AtomicInteger();
         this.reactiveSqlSessionOperator.executeMany(
-                this.deptMapper.selectDeptWithEmpList()
-        )
+                        this.deptDynamicMapper.selectManyDeptWithEmp(selectStatementProvider)
+                )
                 .as(StepVerifier::create)
-                .expectNextMatches(deptWithEmp -> {
-                    assertThat(deptWithEmp)
-                            .extracting(DeptWithEmp::getEmpList)
-                            .matches(empList -> empList.size() >0 );
-                    return true;
-                })
-                .expectNextCount(2L)
-                .expectNextMatches(deptWithEmp -> {
-                    assertThat(deptWithEmp)
-                            .extracting(DeptWithEmp::getEmpList)
-                            .matches(empList -> empList.size() ==0 );
+                .thenConsumeWhile(deptWithEmp -> {
+                    recordCount.getAndIncrement();
+                    log.info("printing deptWithEmp: " + deptWithEmp);
+                    Assertions.assertThat(deptWithEmp.getDeptNo()).isNotNull();
                     return true;
                 })
                 .verifyComplete();
+        assertEquals(4 , recordCount.get());
     }
 
     @Test
     public void testGetEmpWithDept() throws Exception {
+        BasicColumn[] selectColumns = BasicColumn.columnList(
+                DeptDynamicSqlSupport.deptNo.as("dept_dept_no"),
+                DeptDynamicSqlSupport.deptName.as("dept_dept_name"),
+                DeptDynamicSqlSupport.location.as("dept_location"),
+                DeptDynamicSqlSupport.createTime.as("dept_create_time"),
+                EmpDynamicSqlSupport.empNo,
+                EmpDynamicSqlSupport.empName,
+                EmpDynamicSqlSupport.job,
+                EmpDynamicSqlSupport.manager,
+                EmpDynamicSqlSupport.hireDate,
+                EmpDynamicSqlSupport.salary,
+                EmpDynamicSqlSupport.kpi,
+                EmpDynamicSqlSupport.deptNo,
+                EmpDynamicSqlSupport.createTime
+        );
+
+        SelectStatementProvider selectStatementProvider = SqlBuilder.select(selectColumns)
+                .from(EmpDynamicSqlSupport.emp)
+                .leftJoin(DeptDynamicSqlSupport.dept, SqlBuilder.on(EmpDynamicSqlSupport.deptNo, SqlBuilder.equalTo(DeptDynamicSqlSupport.deptNo)))
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+        AtomicInteger recordCount = new AtomicInteger();
         this.reactiveSqlSessionOperator.executeMany(
-                this.empMapper.selectEmpWithDeptList()
-        )
+                        this.empDynamicMapper.selectManyEmpWithDept(selectStatementProvider)
+                )
                 .as(StepVerifier::create)
                 .thenConsumeWhile(empWithDept -> {
-                    assertThat(empWithDept.getDept()).isNotNull();
+                    recordCount.getAndIncrement();
+                    log.info("printing deptWithEmp: " + empWithDept);
+                    Assertions.assertThat(empWithDept.getDeptNo()).isNotNull();
                     return true;
                 })
                 .verifyComplete();
+        assertEquals(14 , recordCount.get());
     }
 
-    @Test
-    public void testGetEmpByParameterMap() throws Exception {
-        Emp emp = new Emp();
-        emp.setCreateTime(LocalDateTime.now());
-        this.reactiveSqlSessionOperator.executeMany(
-                this.empMapper.selectByParameterMap(emp)
-        )
-                .as(StepVerifier::create)
-                .expectNextCount(14)
-                .verifyComplete();
+    @AfterAll
+    public static void tearDown(){
+        container.stop();
     }
-    **/
 }
